@@ -1,19 +1,14 @@
-function Ship(name, length) {
+function Ship(length) {
     const ships = {
-        name,
         length,
         positions: [],
+        hehe: 'O',
         hits: 0,
         sunk: false,
     }
-    const hit = () => {
-        ships.hits++;
-    }
+    const hit = () => ships.hits++; 
     const isSunk = () => {
-        if (ships.hits = ships.length) {
-            ships.sunk = true; 
-            console.log(ships.sunk);
-        }
+        if (ships.hits === ships.length) { return ships.sunk = true; }
     }
     return {ships, isSunk, hit} 
 }
