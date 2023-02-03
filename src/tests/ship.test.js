@@ -1,25 +1,33 @@
-import Ship from '../factories/ship'
+import {Ship} from '../factories/ship'
 
 describe('Ship', () => {
-  let ship;
-  beforeEach(() => {
-    ship = Ship(3)
-  })
-  //Quando dou call na funcao Ship(length) recebo objecto ship com as propriedades corretas
-  // test('creates a ship', () => {
-  //   expect(Ship).toEqual(length = 3, hits = 0);
-  // });
-  // //Se os hits estao a ser bem registados
-  // test('Takes a hit', () => {
-  //   Ship.hit()
-  //   expect(Ship).toBe(length);
-  // });
+  let ship = Ship(3);
 
-  //Se quando hits = length do ship sunk passa para true
-  test('Sinks', () => {
-    Ship(3).hit();
-    Ship(3).hit();
-    Ship(3).hit();
-    expect(Ship(3).isSunk()).toBe(true)
+  beforeEach(() => {
+    ship;
+  })
+
+  test('creates ship', () => {
+    expect(ship.ships.length).toBe(Ship(3).ships.length)
+  }) 
+
+  test('takes a hit', () => {
+    ship.hit()
+    ship.hit()
+    expect(ship.ships.hits).toContain(2)
+  })
+
+  test('sinks', () => {
+    ship.hit()
+    ship.hit()
+    ship.hit()
+    expect(ship.isSunk()).toBe(true)
+  })
+
+  test('prevents being hit multiple times at the same spot', () => {
+    ship.hit(1)
+    ship.hit(1)
+    ship.hit(1)
+    expect(ship.ships.hits).toBe(1)
   })
 })
