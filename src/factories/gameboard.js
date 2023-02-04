@@ -10,19 +10,22 @@ function Gameboard() {
         board.push(new Array(boardSize).fill(null));
     }
     //PlaceShip tem de conseguir colocar navio tanto para player como computer
+
+    //placeShip -> Check isPlacement
+    //placeRandom -> placeShip -> Check isPlacement
     function placeShip(posX, posY, length, isVertical) {
-        if (isPlacement === true) {
+        if (isPlacement(posX, posY, length, isVertical) === true) {
             if (isVertical === true) {
                 for (let i = 0; i < length; i++) {
                     board[posX+i][posY] = 'O';
                 }
-            } else if (isVertical === false){
+            } else if (isVertical === false) {
                 for (let j = 0; j < length; j++) {
-                    board[posX][posY+j] = 'O';
+                    board[posX][posY+j] = 'H';
                 }
             }
-            return board
         }
+        return board
     }
     function isPlacement(posX, posY, length, isVertical) {
         let maxRow = board.length;
@@ -41,18 +44,21 @@ function Gameboard() {
     }
     function placeRandom() {
         let shipPlaced = 1;
+        let ShipEnemy;
 
         while (shipPlaced < 6) {
             let posX = Math.floor(Math.random() * 10);
             let posY = Math.floor(Math.random() * 10);
             let randomAlign = Math.floor(Math.random() * 2);
             randomAlign > 0 ? randomAlign = true : randomAlign = false;
-           
-            placeShip(posX, posY, shipPlaced, randomAlign)
+            
+            placeShip(posX, posY, shipPlaced, randomAlign);
+            ShipEnemy = Ship(shipPlaced);
             shipPlaced++;
         }
+        return ShipEnemy
     }
-    function receiveHit(posX, posY) {
+    function receiveAttack(posX, posY) {
         for (let ship of gameShips) {
             ship.ships.positions.forEach(function (item) {
                 if (item.length === 2 && item[0] === posX && item[1] === posY) {
@@ -67,11 +73,10 @@ function Gameboard() {
                     ship[i].isSunk();
                 }
             }
-            return GameOver
         }
-        return {board}
+        return {board, GameOver}
     }
-    return {board, gameShips, placeShip, receiveHit}
+    return {board, gameShips, placeShip, placeRandom, receiveAttack}
 }
 
 let game = Gameboard();
@@ -79,6 +84,10 @@ let game = Gameboard();
 console.log(game.placeShip(2,4,4,false));
 console.log(game.placeShip(6,2,5,true));
 console.log(game.placeShip(6,8,3,true));
+
+console.log(game.placeRandom(2,4,4,false));
+console.log(game.placeRandom(6,2,5,true));
+console.log(game.placeRandom(6,8,3,true));
 
 export {Gameboard};
 
