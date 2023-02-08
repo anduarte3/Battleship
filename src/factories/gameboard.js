@@ -9,12 +9,11 @@ function Gameboard() {
     for (let i = 0; i < boardSize; i++) {
         board.push(new Array(boardSize).fill(null));
     }
-    //PlaceShip tem de conseguir colocar navio tanto para player como computer
-
     //placeShip -> Check isPlacement
     //placeRandom -> placeShip -> Check isPlacement
     function placeShip(posX, posY, length, isVertical) {
-        if (isPlacement(posX, posY, length, isVertical) === true) {
+        
+        if (isPlacement(posX, posY, length, isVertical) === true && isEmpty() === true) {
             if (isVertical === true) {
                 for (let i = 0; i < length; i++) {
                     board[posX+i][posY] = 'O';
@@ -26,21 +25,6 @@ function Gameboard() {
             }
         }
         return board
-    }
-    function isPlacement(posX, posY, length, isVertical) {
-        let maxRow = board.length;
-        let maxCol = board[0].length;
-        let endX = posX;
-        let endY = posY;
-
-        if (isVertical === true) { endX = posX + length-1;} 
-        else if (isVertical === false) { endY = posY + length-1;}
-
-        if (endX >= maxRow || endY >= maxCol) {
-            console.log('Error, out of bounds');
-            return false
-        }       
-        return true 
     }
     function placeRandom() {
         let shipPlaced = 1;
@@ -58,23 +42,88 @@ function Gameboard() {
         }
         return ShipEnemy
     }
+    function isPlacement(posX, posY, length, isVertical) {
+        let maxRow = board.length;
+        let maxCol = board[0].length;
+        let endX = posX;
+        let endY = posY;
+
+        if (isVertical === true) { endX = posX + length-1;} 
+        else if (isVertical === false) { endY = posY + length-1;}
+
+        // case position is out of gameboard
+        if (endX >= maxRow || endY >= maxCol) {
+            console.log('Error, out of bounds');
+            return false
+        }       
+        // case any of the fields is already taken
+        for (let i = 0; i < length; i++) {
+            if (board[posX+i][posY]) { return false }
+            else if (board[posX][posY+i]) { return false }
+        }
+        // case any of the near fields are taken
+        if (isVertical === true) {
+            //Iterate over Ship Size
+            for (let i = 0; i < length; i++) {
+                    //case left
+                    if (board[posX-1][posY] !== null) {
+                        //case right
+                        if (board[posX+1][posY] !== null) {
+                            return false
+                        }
+                    }
+                    //case above and below
+                    if (i === 0 && board[posX][posY-1] !== null) { return false } 
+                    if (i === length-1 && board[posX][posY+1] !== null) { return false } 
+                }
+            return true
+        }
+        else if (isVertical === false) {
+            //Iterate over Ship Size
+            for (let i = 0; i < length; i++) {
+                //case above
+                if (board[posX][posY-1] !== null) {
+                    //case below
+                    if (board[posX][posY+1] !== null) {
+                        return false
+                    }
+                }
+                //case left and right
+                if (i === 0 && board[posX-1][posY] !== null) { return false } 
+                if (i === length-1 && board[posX+1][posY] !== null) { return false } 
+            }
+            return true
+        }
+        //Final return
+        return true
+    }
+    function isEmpty() {
+        for (let i = 0; i < boardSize; i++) {
+            for (let j = 0; j < boardSize; j++) {
+                if (board[i][j] !== null) { return false}
+                else { return true }
+            }
+        } 
+    }
     function receiveAttack(posX, posY) {
         for (let ship of gameShips) {
             ship.ships.positions.forEach(function (item) {
                 if (item.length === 2 && item[0] === posX && item[1] === posY) {
                     board[posX][posY] = 'X';
                 }
-                else  { missShot.push([posX,posY]); }
+                else  { missShot.push([posX,posY]); board[posX][posY] = 'Fail'; }
             })
         }
-        const GameOver = () => {
-            for (let ship of gameShips) {
-                if (ship[i].ships.hits === ship[i].ships.length) {
-                    ship[i].isSunk();
-                }
+        isGameOver();
+        return {board}
+    }
+    function isGameOver() {
+        for (let ship of gameShips) {
+            if (ship[i].ships.hits === ship[i].ships.length) {
+                ship[i].isSunk();
             }
         }
-        return {board, GameOver}
+        return 'GameOver'
     }
     return {board, gameShips, placeShip, placeRandom, receiveAttack}
 }
@@ -90,17 +139,3 @@ console.log(game.placeRandom(6,2,5,true));
 console.log(game.placeRandom(6,8,3,true));
 
 export {Gameboard};
-
-
-// if (orientation == 'horizontal') {
-//     for (let i = 0; i < length; i++) {
-//         gameShips[length-1].ships.positions.push([x,y+i]);
-//         board[x][y+i] = 'O';
-//     }
-// }
-// else if (orientation == 'vertical') {
-//     for (let j = 0; j < length; j++) {
-//         gameShips[length-1].ships.positions.push([x,y+j]);
-//         board[x+j][y] = 'O';
-//     }
-// }
