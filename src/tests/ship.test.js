@@ -1,23 +1,29 @@
 import {Ship} from '../factories/ship'
-const ship = Ship(3);
+
+let ship;
+
+beforeEach(() => {
+  ship = Ship(3);
+});
+
 
 test('Create a Ship', () => {
   expect(ship).toBeInstanceOf(Object);
-  expect(ship.ships.length).toBe(3);
-  expect(ship.hit).toBeInstanceOf(Function);
+  expect(ship.length).toBe(3);
+  expect(ship.hits).toBeInstanceOf(Function);
   expect(ship.isSunk).toBeInstanceOf(Function);
 });
 
 test('takes a hit', () => {
-  ship.hit()
-  ship.hit()
-  expect(ship.ships.hits).toBe(2)
+  ship.hits()
+  ship.hits()
+  expect(ship.hits()).toBe(2)
 });
 
 test('sinks', () => {
-  ship.hit()
-  ship.hit()
-  ship.hit()
+  ship.hits()
+  ship.hits()
+  ship.hits()
   expect(ship.isSunk()).toBe(true)
 });
 
@@ -26,5 +32,4 @@ test('sinks', () => {
 //   ship.hit(1)
 //   ship.hit(1)
 //   expect(ship.ships.hits).toBe(1)
-// })
 // })

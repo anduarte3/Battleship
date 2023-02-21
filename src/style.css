@@ -4,4 +4,82 @@
 } */
 body {
     background-color: gray;
+    display: flex;
+    flex-direction: column;
+}
+h1 {
+    padding-top: 50px;
+    text-align: center;
+    font-size: 60px;
+}
+h2 {
+    text-align: center;
+    padding-left: 50px;
+    padding-right: 50px;
+    
+}
+.board-container {
+    margin: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.player {
+    display: grid;
+    grid-template-columns: repeat(10, 50px);
+    grid-template-rows: repeat(10, 50px);
+    gap: 1px;
+    margin-right: 50px;
+}
+.computer {
+    display: grid;
+    grid-template-columns: repeat(10, 50px);
+    grid-template-rows: repeat(10, 50px);
+    gap: 1px;
+}
+.square {
+    width: 30px;
+  height: 30px;
+  border: 1px solid black;
+  margin: 1px;
+  padding: 0;
+  background-color: white;
+  cursor: pointer;
+}
+.red {
+    background-color: red;
+}
+.interface {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.placement {
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+}
+#event-button {
+    font-size: 60px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+#toggle-button {
+    background-color: #d9534f;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: bold;
+  }
+#toggle-button.on {
+background-color: #5cb85c;
+}
+
+#toggle-button.off {
+background-color: #d9534f;
 }
