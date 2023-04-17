@@ -1,80 +1,28 @@
 import {Ship} from "./ship";
 
-let playerBoard = document.getElementById('player-board');
-let computerBoard = document.getElementById('computer-board');
-
-
 function Gameboard() {
-    
-    const ships = []
+
+    const ships = [];
+    const shipsComp = [];
     const missShot = [];
     const boardSize = 10;
-    const board = [];
-    let playerSquares = [];
-    let computerSquares = [];
+    // const board = [];
+    // const boardComp = [];
     
-    //Initialize
-    for (let i = 0; i < boardSize; i++) {
-        board.push(new Array(boardSize).fill(null).map(() => ({ shipId: null, hit: false })));
-    }
-    //Create boards in HTML-
-    function createBoards() {
-        //Re-creating the boards divs
-        playerBoard = document.createElement('div');
-        playerBoard.id = 'player-board';
-        document.querySelector('#player-board-container').appendChild(playerBoard);
-
-        computerBoard = document.createElement('div');
-        computerBoard.id = 'computer-board';
-        document.querySelector('#computer-board-container').appendChild(computerBoard);
-
-        // Add squares to the boards
-        for (let i = 0; i < boardSize; i++) {
-            for (let j = 0; j < boardSize; j++) {
-                const square = document.createElement('button');
-                square.addEventListener('click', () => square.classList.add('red'));
-                square.classList.add('square');
-                playerBoard.appendChild(square);
-                playerSquares.push();               
-            }
-        }
-        for (let i = 0; i < boardSize; i++) {
-            for (let j = 0; j < boardSize; j++) {
-                const square = document.createElement('button');
-                square.addEventListener('click', () => square.classList.add('red'));
-                square.classList.add('square');
-                computerBoard.appendChild(square);
-                computerSquares.push();   
-            }
-        } 
-        return { playerSquares, computerSquares, playerBoard, computerBoard}
-    }
-    function removeBoards() {
-        if (playerBoard) {
-            playerBoard.remove();
-            playerBoard = null;
-        }
-        if (computerBoard) {
-        computerBoard.remove();
-        computerBoard = null;
-        }
-        playerSquares.forEach(square => square.remove());
-        computerSquares.forEach(square => square.remove());
-        playerSquares = [];
-        computerSquares = [];
-    }
-
-    function placeShip(row, column, length, isVertical) {
+    function placeShip(row, column, length, isVertical, board) {
         const newShip = Ship(length);
-
-        if (!isPlacement(row, column, length, isVertical)) return false
+        
+        if (!isPlacement(row, column, length, isVertical, board)) return false
+            console.log('This means placement is true');
             if (isVertical === true) {
                 for (let i = 0; i < length; i++) {
+                    //Player Board
                     board[row+i][column].shipId = newShip.shipId;
-                    newShip.positions.push([row+i, column]);             
+                    newShip.positions.push([row+i, column]);
                 }
             } else if (isVertical === false) {
                 for (let j = 0; j < length; j++) {
+                    //Player Board
                     board[row][column+j].shipId = newShip.shipId;
                     newShip.positions.push([row, column+j]); 
                 }
@@ -84,28 +32,40 @@ function Gameboard() {
         return { board, ships }
     }
     
-    function placeRandom() {
-        let shipPlaced = 1;
+    function placeRandom(shipPlaced, boardComp) {
+        //let shipPlaced = 1;
+        let row = Math.floor(Math.random() * 10);
+        let column = Math.floor(Math.random() * 10);
 
-        while (shipPlaced < 6) {
-            let row = Math.floor(Math.random() * 10);
-            let column = Math.floor(Math.random() * 10);
-            let randomAlign = Math.floor(Math.random() * 2);
-            randomAlign > 0 ? randomAlign = true : randomAlign = false;
-
-            if (isPlacement(row, column, shipPlaced, randomAlign) == true) {
-                placeShip(row, column, shipPlaced, randomAlign);
-                shipPlaced++;
-            }  
-        } 
-        return board
+        const randomAlign = Math.floor(Math.random() * 2) > 0 ? true : false;
+        const newCompShip = Ship(shipPlaced);
+     
+        if (isPlacement(row, column, shipPlaced, randomAlign, boardComp)) {
+            console.log('This means placement is true');
+            if (randomAlign) {
+                for (let i = 0; i < shipPlaced; i++) {
+                    //Comp Board
+                    boardComp[row+i][column].shipId = newCompShip.shipId;
+                    newCompShip.positions.push([row+i, column]);
+                }
+            } else if (!randomAlign) {
+                for (let j = 0; j < shipPlaced; j++) {
+                    //Comp Board
+                    boardComp[row][column+j].shipId = newCompShip.shipId;
+                    newCompShip.positions.push([row, column+j]);
+                }
+            }
+            shipsComp.push(newCompShip)
+        }
+        else return false
+        console.log(boardComp);
+        return { boardComp, shipsComp }
     }
-    function isPlacement(row, column, length, isVertical) {
-
+    function isPlacement(row, column, length, isVertical, board) {
         // case position is out of gameboard
         if (row < 0 || row > boardSize - 1 || column < 0 || column > boardSize - 1) return false 
 
-        // case ship doesn't fit in gameboard
+        //case ship doesn't fit in gameboard
         if (isVertical == true) {
             if (row + length > boardSize - 1) return false
         } else {
@@ -113,17 +73,18 @@ function Gameboard() {
         }
 
         // case any of the fields is already taken
-        if (isVertical == true) {
+        if (isVertical) {
             for (let i = 0; i < length; i++) {
-                if (board[row+i][column].shipId !== null) return false 
+                if (board[row+i][column].shipId !== null) return false
             }
         } else {
             for (let i = 0; i < length; i++) {
-                if (board[row][column+i].shipId !== null) return false 
+                if (board[row][column+i].shipId !== null) return false
             }
         } 
+
         // case any of the near fields are taken
-        if (isVertical == true) {
+        if (!isVertical) {
             for (let i = 0; i < length; i++) {
                 for (let x = -1; x <= 1; x++) {
                     for (let y = -1; y <= 1; y++) {
@@ -152,20 +113,21 @@ function Gameboard() {
         }
         return true
     }
-
-    function receiveAttack(row, column) {
+    function receiveAttack(row, column, board) {
         const target = board[row][column];
         const targetShipId = target.shipId;
 
+        console.log(ships);
+        console.log(shipsComp);
         //If outside the board
-        if (row < 0 || row > boardSize - 1 || column < 0 || column > boardSize - 1) return false 
+        if (row < 0 || row > boardSize || column < 0 || column > boardSize) return false 
 
         //If is a miss
         if (targetShipId == null && target.hit == false) {
             target.hit = true;
             //Register as a miss
             missShot.push([row, column]);
-            return
+            return missShot
         }
         //Already Hit field or Ship already Hit is basically the same
         if (target.hit) {
@@ -193,7 +155,9 @@ function Gameboard() {
                 }
             }
         }
-        
+        console.log(missShot);
+        console.log(board);
+        console.log(ships);
         return { board, missShot, ships }
     }
     function isEmpty() {
@@ -208,49 +172,14 @@ function Gameboard() {
     }
 
     return {
-        board,
         ships,
+        shipsComp,
         placeShip, 
         placeRandom,
+        isPlacement,
         receiveAttack,
-        createBoards,
-        removeBoards,
         isEmpty
     }
 }
 
-let game = Gameboard();
-// console.log(game);
-// console.log(game.placeShip(1,1,1,false));
-// console.log(game.placeShip(2,2,2,true));
-// console.log(game.placeShip(4,4,3,false));
-// console.log(game.placeShip(2,5,4,true));
-// console.log(game.placeShip(5,1,5,true));
-//console.log(game.placeRandom());
-// console.log(game.ships);
-// console.log(game.receiveAttack(2,3));
-// console.log(game.receiveAttack(2,4));
-// console.log(game.receiveAttack(2,5));
-// console.log(game.receiveAttack(2,6));
-// console.log(game.receiveAttack(3,3));
-// console.log(game.receiveAttack(4,7));
-// console.log(game.receiveAttack(3,8));
-// console.log(game.receiveAttack(6,5));
-// console.log(game.receiveAttack(0,0));
-// console.log(game.receiveAttack(8,8));
-// console.log(game.receiveAttack(0,9));
-// console.log(game.receiveAttack(9,0));
-// console.log(game.receiveAttack(2,3));
-
 export {Gameboard};
-
-
-// If player placeShip is false make condition to repeat the placement TODO
-// Rework receiveHit function DONE
-// Start gameboard tests maybe
-// Rework player.js
-// Start making Interface
-
-//How do i know which ship is marked into the gameboard?
-
-//1 - I need some sort of object property that can back trace to the Ship placed

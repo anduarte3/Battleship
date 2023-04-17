@@ -8,53 +8,204 @@ const clearGameButton = document.getElementById('clear-game');
 const toggleButton = document.getElementById('toggle-button');
 const eventButton = document.getElementById('event-button');
 
+const board = [];
+const boardComp = [];
+
+let playerBoard = document.getElementById('player-board');
+let computerBoard = document.getElementById('computer-board');
+
 let gameBoard = Gameboard();
 let isVertical = false;
+let size = 10;
+let shipLength = 1;
+let playerSquares = [];
+let computerSquares = [];
+let playerTurn = true;
 
-function initialize() {
-  startGameButton.addEventListener('click', () => {
-    gameBoard.createBoards();
-    startGameButton.disabled = true;
-    toggleButton.disabled = false;
-    eventButton.textContent = 'Place your Ships!';
-  });
-  clearGameButton.addEventListener('click', () => {
-    gameBoard.removeBoards();
-    startGameButton.disabled = false;
-    toggleButton.disabled = true;
-    eventButton.textContent = '';
-  });
-  toggleButton.addEventListener('click', () =>  {
-    isVertical = !isVertical;
-    if (isVertical) {
-      toggleButton.textContent = "On";
-      toggleButton.classList.add('on');
-      toggleButton.classList.remove('off');
-      // Do something when toggleButton is turned on
-    } else {
-      toggleButton.textContent = "Off";
-      toggleButton.classList.remove('on');
-      toggleButton.classList.add('off');
-      // Do something when toggleButton is turned off
-    }
-  })
+startGameButton.addEventListener('click', () => {
+  createPlayerBoard();
+  createCompBoard();
+  placingCompShips();
+  startGameButton.disabled = true;
+  eventButton.textContent = 'Place your Ships!';
+});
+
+clearGameButton.addEventListener('click', () => {
+  location.reload();
+});
+
+toggleButton.addEventListener('click', () =>  {
   
-}
-initialize()
-
-function shipLengths() {
-  let shipLength = 1;
-  for (let i = 0; i < 5; i++) {
-    placeShip(row, col, length, isVertical)
+  if (isVertical === false) {
+    toggleButton.textContent = "On";
+    toggleButton.classList.add('on');
+    toggleButton.classList.remove('off');
+    isVertical = true;
+  } else if (isVertical === true) {
+    toggleButton.textContent = "Off";
+    toggleButton.classList.remove('on');
+    toggleButton.classList.add('off');
+    isVertical = false;
   }
-  
+})
+
+//Create boards for the logic
+for (let i = 0; i < size; i++) {
+  board.push(new Array(size).fill(null).map(() => ({ shipId: null, hit: false })));
+}
+for (let i = 0; i < size; i++) {
+  boardComp.push(new Array(size).fill(null).map(() => ({ shipId: null, hit: false })));
 }
 
-    
+//Create boards in HTML
+function createPlayerBoard() {
+  playerBoard = document.createElement('div');
+  playerBoard.id = 'player-board';
+  document.querySelector('#player-board-container').appendChild(playerBoard);
 
-//Click new game
-//Clear all the game and place new boards
-//It's time to place ships, left side is player board, if vertical button is on ships placement is vertical
-//Place player ships as input from the player, from 1 to 5,
-//it should place until there are the 5 different ships
-//Then placeRandom for the computer
+  // Add squares to the boards
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      const square = document.createElement('button');
+      square.classList.add('square');
+      square.dataset.x = i;
+      square.dataset.y = j;
+      playerBoard.appendChild(square);
+      square.addEventListener('click', playerBoardEvent);
+    }
+  }
+  return { playerSquares, playerBoard }
+}
+
+function createCompBoard() {
+  computerBoard = document.createElement('div');
+  computerBoard.id = 'computer-board';
+  document.querySelector('#computer-board-container').appendChild(computerBoard);
+
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      const square = document.createElement('button');
+      square.classList.add('square');
+      square.dataset.row = i;
+      square.dataset.col = j;
+      computerBoard.appendChild(square);
+      square.addEventListener('click', compBoardEvent);
+    }
+  }
+  return { computerSquares, computerBoard }
+}
+
+function playerBoardEvent(e) {
+  const x = parseInt(e.target.dataset.x);
+  const y = parseInt(e.target.dataset.y);
+  console.log(`Coordinates are: x: ${x},y: ${y}`);
+  //Placement is fully done
+  if (placingPlayerShips(x,y) === 'Placement Done') {
+    //Turn logic
+    if (playerTurn === false) {
+      startAttack().compAttack(x,y);
+      playerTurn = true;
+    }
+  } else placingPlayerShips(x,y);
+}
+
+function compBoardEvent(e) {
+  const row = parseInt(e.target.dataset.row);
+  const col = parseInt(e.target.dataset.col);
+  console.log(`Coordinates are: x: ${row},y: ${col}`);
+  if (placingPlayerShips(row,col) === 'Placement Done') {
+    if (playerTurn === true) {
+      startAttack().playerAttack(row,col);
+      playerTurn = false;
+    }
+  } else placingPlayerShips(row,col);
+}
+
+function placingPlayerShips(x, y) {
+  let sucessfulPlacements = 0;
+  
+  if (shipLength >= 6) {
+    eventButton.textContent = 'Game started!';
+    return 'Placement Done'
+  }
+
+  if (gameBoard.placeShip(x, y, shipLength, isVertical, board)) {
+    for (let i = 0; i < shipLength; i++) {
+      if (isVertical == true) {
+        const markShip = document.querySelector(`button[data-x="${x+i}"][data-y="${y}"]`);
+        markShip.classList.add('blue');
+      } else {
+        const markShip = document.querySelector(`button[data-x="${x}"][data-y="${y+i}"]`);
+        markShip.classList.add('blue');
+      }
+    }
+    sucessfulPlacements++;
+    shipLength++;
+    
+  } else {
+    console.log('Invalid ship placement');
+  }
+  console.log(`Sucessfully placed ${sucessfulPlacements} ships.`);
+  //console.log(`This is player board:`);
+  console.log(board);
+}
+
+function placingCompShips() {
+  let shipPlaced = 1;
+  let sucessfulPlacements = 0;
+  //Place Comp Ships Randomly
+  for (let i = 0; i < 5; i++) {
+    let placed = false;
+    while (!placed) {
+      placed = gameBoard.placeRandom(shipPlaced, boardComp);
+    }
+    shipPlaced++;
+    sucessfulPlacements++;
+  }
+  console.log(`Sucessfully placed ${sucessfulPlacements} ships.`);
+  //console.log(`This is comp board:`);
+  console.log(boardComp);
+}
+
+function startAttack() {
+  let gameover;
+  
+  //Register hits on Computer board
+  function playerAttack(x,y) {
+    const attack = document.querySelector(`button[data-row="${x}"][data-col="${y}"]`);
+    attack.classList.add('red');
+
+    gameBoard.receiveAttack(x,y,boardComp);
+  }
+  //Register hits on Player board
+  function compAttack(x,y) {
+    const attack = document.querySelector(`button[data-x="${x}"][data-y="${y}"]`);
+    attack.classList.add('red');
+    eventButton.textContent = 'Your turn';
+
+    //gameBoard.receiveAttack(x,y);
+  }
+
+  return { playerAttack, compAttack }
+}
+
+
+
+
+
+
+
+// function removeBoards() {
+//   if (playerBoard) {
+//     playerBoard.remove();
+//     playerBoard = null;
+//   }
+//   if (computerBoard) {
+//     computerBoard.remove();
+//     computerBoard = null;
+//   }
+//   playerSquares.forEach(square => square.remove());
+//   computerSquares.forEach(square => square.remove());
+//   playerSquares = [];
+//   computerSquares = [];
+// }

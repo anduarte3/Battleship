@@ -16,39 +16,48 @@ h2 {
     text-align: center;
     padding-left: 50px;
     padding-right: 50px;
-    
 }
 .board-container {
-    margin: 50px;
+    width: 80%;
+    max-width: 650px;
+    height: 0;
+    padding-bottom: 30%; /* this creates a 1:1 aspect ratio */
+    margin: auto;
     display: flex;
     flex-direction: row;
     justify-content: center;
 }
-
 .player {
     display: grid;
-    grid-template-columns: repeat(10, 50px);
-    grid-template-rows: repeat(10, 50px);
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
     gap: 1px;
-    margin-right: 50px;
 }
 .computer {
     display: grid;
-    grid-template-columns: repeat(10, 50px);
-    grid-template-rows: repeat(10, 50px);
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
     gap: 1px;
+}
+#player-board-container {
+    margin-right: 5px;
+}
+#computer-board-container {
+    margin-left: 5px;
 }
 .square {
     width: 30px;
-  height: 30px;
-  border: 1px solid black;
-  margin: 1px;
-  padding: 0;
-  background-color: white;
-  cursor: pointer;
+    height: 30px;
+    border: 1px solid black;
+    padding: 0;
+    background-color: white;
+    cursor: pointer;
 }
 .red {
     background-color: red;
+}
+.blue {
+    background-color: blue;
 }
 .interface {
     display: flex;
@@ -65,6 +74,7 @@ h2 {
     font-size: 60px;
     text-align: center;
     margin-bottom: 20px;
+    margin-top: 200px;
 }
 #toggle-button {
     background-color: #d9534f;
@@ -77,9 +87,8 @@ h2 {
     font-weight: bold;
   }
 #toggle-button.on {
-background-color: #5cb85c;
+    background-color: #5cb85c;
 }
-
 #toggle-button.off {
-background-color: #d9534f;
+    background-color: #d9534f;
 }
