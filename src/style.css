@@ -56,8 +56,17 @@ h2 {
 .red {
     background-color: red;
 }
+.orange {
+    background-color: orange;
+}
+.yellow {
+    background-color: yellow;
+}
 .blue {
     background-color: blue;
+}
+.black {
+    background-color: black;
 }
 .interface {
     display: flex;
